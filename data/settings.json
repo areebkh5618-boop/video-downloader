@@ -1,0 +1,12 @@
+{
+  "default_video_quality": "best",
+  "default_video_format": "mp4",
+  "default_audio_format": "mp3",
+  "default_audio_bitrate": "256",
+  "max_concurrent_downloads": 3,
+  "save_thumbnails": true,
+  "embed_metadata": true,
+  "subtitle_preference": "none",
+  "auto_start_download": true,
+  "theme": "system"
+}

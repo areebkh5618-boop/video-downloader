@@ -1,0 +1,54 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+      target: production
+    container_name: areebfetch-backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - DEBUG=false
+      - 'ALLOWED_ORIGINS=["http://localhost:3000","http://127.0.0.1:3000"]'
+      - RATE_LIMIT=30/minute
+      - MAX_CONCURRENT_DOWNLOADS=3
+      - CLEANUP_AFTER_HOURS=24
+      - JOB_TTL_SECONDS=86400
+      - MAX_FILE_SIZE_MB=4096
+    volumes:
+      - ./downloads:/app/downloads
+      - ./temp:/app/temp
+      - ./logs:/app/logs
+      - ./data:/app/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - areebnet
+
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+      target: production
+    container_name: areebfetch-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - BACKEND_URL=http://backend:8000
+      - NEXT_PUBLIC_API_URL=/api
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - areebnet
+
+networks:
+  areebnet:
+    driver: bridge
